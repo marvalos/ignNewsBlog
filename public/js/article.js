@@ -1,15 +1,15 @@
-$(document).ready(function(){
+$(document).ready(function () {
     $("form").on("submit", function (event) {
         event.preventDefault();
 
-        let articleId = $("#article").data("article-id");
+        let article_id = $("#article").data("article-id");
         let noteData = {
-            title : $("#newNoteTitle").val().trim(),
+            title: $("#newNoteTitle").val().trim(),
             body: $("#newNoteBody").val()
         };
 
         //Scrape news by calling out to api and then displaying results
-        $.post(`/api/article/${articleId}`, noteData).then(res=>{
+        $.post(`/api/article/${article_id}`, noteData).then(res => {
             $("#newNoteTitle").val("");
             $("#newNoteBody").val("");
             $("form").removeClass("was-validated");
@@ -19,14 +19,14 @@ $(document).ready(function(){
         });
     });
 
-    $(document).on("click",".fa-trash",function(event){
-        const commentId = $(this).data("comment-id");
-        const articleId = $("#article").data("article-id");
+    $(document).on("click", ".fa-trash", function (event) {
+        const comment_id = $(this).data("comment-id");
+        const article_id = $("#article").data("article-id");
         $.ajax({
             method: "DELETE",
-            url: `/api/comment/${commentId}`,
-            data: { articleId: articleId }
-        }).then(data=>{
+            url: `/api/comment/${comment_id}`,
+            data: { article_id: article_id }
+        }).then(data => {
             location.reload();
         });
     });
