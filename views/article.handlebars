@@ -1,0 +1,60 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark px-0">
+    <a class="navbar-brand px-3" href="/">Mongo News Scraper</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+                <a class="nav-link" href="/"><i class="fas fa-chevron-left"></i> Back to Articles</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+<div class="container-fluid">
+    <h1 class="mt-4 text-center">Article</h1>
+    <div class="card my-4">
+        <div class="card-header font-weight-bold">
+            {{article.title}}
+        </div>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">{{article.teaser}}</li>
+            <li class="list-group-item">
+                <a href="{{article.link}}">Read Full Article</a>
+            </li>
+        </ul>
+    </div>
+    <h1 class="mt-4 text-center">Add a Comment</h1>
+    <form id="article" data-article-id="{{article._id}}">
+        <div class="form-group">
+            <label for="newNoteTitle">Title</label>
+            <input type="input" class="form-control" id="newNoteTitle" name="newNoteTitle" required>
+        </div>
+        <div class="form-group">
+            <label for="newNoteBody">Comment</label>
+            <textarea class="form-control" rows="5" id="newNoteBody" name="newNoteBody" required></textarea>
+        </div>
+        <input class="btn btn-primary" type="submit" value="Submit" id="newCommentSubmitBtn">
+    </form>
+    <h1 class="mt-4 text-center">Comments</h1>
+    {{#unless article.notes}}
+    <div class="card my-4">
+        <div class="card-header text-center font-weight-bold">
+            No Comments Submitted Yet. Leave a Comment Above.
+        </div>
+    </div>
+    {{/unless}}
+    {{#each article.notes}}
+    <div class="card my-4">
+        <div class="card-header font-weight-bold">
+            <p class="d-inline">{{title}}</p>
+            <i class="fas fa-trash d-inline-flex float-right" data-comment-id="{{_id}}"></i>
+        </div>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">{{body}}</li>
+        </ul>
+    </div>
+    {{/each}}
+</div>

@@ -1,69 +1,56 @@
-var db = require("../models");
+const db = require("../models");
+const mongoose = require("mongoose");
 
-module.exports = function(app) {
-  // Load index page
-  app.get("/", function(req, res) {
-    db.Example.findAll({}).then(function(dbExamples) {
-      res.render("index", {
-        msg: "Welcome!",
-        examples: dbExamples
-      });
+module.exports = function (app) {
+    // Load index page
+    app.get("/", function (req, res) {
+        db.Article.find({}).sort({createdAt: -1})
+            .then(function (dbArticles) {
+                // If we were able to successfully find Articles, render the index page
+                res.render("index",
+                    {
+                        js_file: "index.js",
+                        articles: dbArticles,
+                        savedSwitch: false
+                    }
+                )
+            })
+            .catch(function (err) {
+                // If an error occurred, send it to the client
+                res.json(err);
+            });
     });
-  });
 
-  // Load example page and pass in an example by id
-  app.get("/example/:id", function(req, res) {
-    db.Example.findOne({ where: { id: req.params.id } }).then(function(dbExample) {
-      res.render("example", {
-        example: dbExample
-      });
+    // Only load saved articles
+    app.get("/saved", function (req, res) {
+        db.Article.find({saved: true}).sort({createdAt: -1})
+            .then(function (dbArticles) {
+                // If we were able to successfully find Articles, render the index page
+                res.render("index",
+                    {
+                        js_file: "index.js",
+                        articles: dbArticles,
+                        savedSwitch: true
+                    }
+                )
+            })
+            .catch(function (err) {
+                // If an error occurred, send it to the client
+                res.json(err);
+            });
     });
-  });
 
-  // Render 404 page for any unmatched routes
-  app.get("*", function(req, res) {
-    res.render("404");
-  });
-};
-
-// Scraping Route
-app.get("/scrape", function (req, res) {
-  db.scrapedData.remove({}, (removeError, removeData) => {
-    if (removeError) {
-      throw new Error(removeError)
-    }
-    else {
-      axios.get("https://www.ign.com/").then(function (axiosResponse) {
-        const $ = cheerio.load(axiosResponse.data);
-        var results = []
-        $(".four-up-items article").each((i, element) => {
-          var title = $(element).find(".item-title-link").text();
-          var link = $(element).find(".item-details >a").attr("href");
-          results.push({
-            title: title,
-            link: link
-          });
-          console.log(results);
-
-          if (title && link) {
-            db.scrapedData.insert({
-              title: title,
-              link: link
-            },
-              function (err, inserted) {
-                if (err) {
-                  // Log the error if one is encountered during the query
-                  console.log(err);
-                }
-                else {
-                  // Otherwise, log the inserted data
-                  console.log(inserted);
-                }
-              });
-          }
+    //display article and any associated notes
+    app.get("/article/:id", function (req, res) {
+        db.Article.findById({ _id: mongoose.Types.ObjectId(req.params.id) }).populate("notes").then(data => {
+            res.render("article", { article: data, js_file: "article.js" });
+        }).catch(err => {
+            res.status(500).json(err);
         });
-      })
-    }
-    res.send("Scrape Complete");
-  });
-})
+    });
+
+    // Render 404 page for any unmatched routes
+    app.get("*", function (req, res) {
+        res.render("404");
+    });
+};
